@@ -1,0 +1,111 @@
+---
+title: "Untitled"
+author: "Tai Yue"
+date: "2024-11-11"
+output:
+  pdf_document: default
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+problem1
+```{r}
+has_shared_birthday <- function(n) {
+ 
+  birthdays <- sample(1:365, n, replace = TRUE)
+  
+  
+  return(length(birthdays) != length(unique(birthdays)))
+}
+
+```
+
+```{r}
+has_shared_birthday <- function(n) {
+  birthdays <- sample(1:365, n, replace = TRUE)
+  return(length(birthdays) != length(unique(birthdays)))
+}
+
+
+group_sizes <- 2:50
+n_simulations <- 10000
+probabilities <- numeric(length(group_sizes))
+
+
+for (i in seq_along(group_sizes)) {
+  n <- group_sizes[i]
+  duplicates <- sum(replicate(n_simulations, has_shared_birthday(n)))
+  probabilities[i] <- duplicates / n_simulations
+}
+
+
+plot(group_sizes, probabilities, type = "o", pch = 19,
+     xlab = "Group Size", ylab = "Probability of Shared Birthday",
+     main = "Probability of Shared Birthday as a Function of Group Size")
+grid()
+
+```
+
+problem2:
+
+```{r}
+library(broom)
+library(ggplot2)
+
+
+n <- 30
+sigma <- 5
+alpha <- 0.05
+mu_values <- c(0, 1, 2, 3, 4, 5, 6)
+num_simulations <- 5000
+
+
+results <- data.frame()
+
+for (mu in mu_values) {
+  
+  rejections <- 0
+  
+  for (i in 1:num_simulations) {
+   
+    sample <- rnorm(n, mean = mu, sd = sigma)
+    
+    
+    t_test_result <- t.test(sample, mu = 0)
+    tidy_result <- tidy(t_test_result)
+    
+    
+    if (tidy_result$p.value < alpha) {
+      rejections <- rejections + 1
+    }
+  }
+  
+  
+  power <- rejections / num_simulations
+  
+  
+  results <- rbind(results, data.frame(mu = mu, power = power))
+}
+
+
+ggplot(results, aes(x = mu, y = power)) +
+  geom_line() +
+  geom_point() +
+  labs(
+    x = "True Value of μ",
+    y = "Power (Proportion of Null Rejections)",
+    title = "Power of One-Sample t-Test vs. Effect Size (μ)"
+  ) +
+  theme_minimal()
+
+```
+
+For small values of μ, the power is low, meaning the test often fails to reject the null hypothesis. As μ increases, the power rises significantly, reaching close to 1 for μ values around 4 and higher. This means that, with larger effect sizes, the test almost always correctly rejects the null hypothesis.The trend suggests a positive relationship between effect size and power: larger effect sizes make it easier to detect an effect, thus increasing the test's power.
+
+```{r}
+
+```
+
